@@ -1,0 +1,104 @@
+/* SignUp.css */
+
+.sign-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--unauth-bg-color);
+  }
+  
+  .sign-card {
+    background-color: var(--unauth-section-bg);
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 350px;
+  }
+  
+  .sign-header {
+    color: var(--unauth-text-color);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .sign-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sign-input {
+    padding: 12px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #3a3a3c;
+    color: var(--unauth-text-color);
+  }
+  
+  .sign-input::placeholder {
+    color: var(--unauth-subtext-color);
+  }
+  
+  .sign-button {
+    padding: 12px;
+    background-color: var(--unauth-accent-color);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  
+  .sign-button:hover {
+    background-color: var(--unauth-button-hover);
+  }
+  
+  .sign-divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+  }
+  
+  .sign-line {
+    flex: 1;
+    height: 1px;
+    background-color: var(--unauth-subtext-color);
+  }
+  
+  .sign-or {
+    margin: 0 10px;
+    color: var(--unauth-subtext-color);
+    font-size: 14px;
+  }
+  
+  .sign-google-container {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .sign-google-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    background-color: #4285F4;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    width: 100%; /* Make the button full width */
+    max-width: 250px; /* Limit the maximum width */
+  }
+  
+  .sign-google-button:hover {
+    background-color: #357ae8;
+  }
+  
+  .sign-google-icon {
+    margin-right: 8px;
+  }
+  
