@@ -1,0 +1,314 @@
+/* Dashboard.css */
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f4f7f6;
+    padding: 20px;
+    box-sizing: border-box; /* Include padding in height calculation */
+}
+
+.dashboard-container h1 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.dashboard-container p {
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.dashboard-signout-button {
+    padding: 10px 20px;
+    background-color: #d9534f; /* A red color for sign out */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.dashboard-signout-button:hover {
+    background-color: #c9302c; /* Darker red on hover */
+}
+
+.dashboard-header {
+    color: var(--unauth-text-color);
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.profile-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 20px;
+    border: 2px solid #ccc;
+}
+
+.default-profile-icon {
+    width: 80px;
+    height: 80px;
+    color: #ccc; /* Default icon color */
+    margin-right: 20px;
+}
+
+.user-email {
+    font-size: 1.4rem; /* Increased font size */
+    font-weight: bold; /* Made the text bold */
+    color: #333; /* Darker color for better contrast */
+    background-color: rgba(255, 255, 255, 0.8); /* Optional: subtle background */
+    padding: 8px 12px; /* Added padding for better readability */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
+}
+
+.quote-section {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 30px;
+    padding: 0 10px;
+    opacity: 0;
+    animation: fadeIn 2s forwards;
+}
+
+.quote {
+    background-color: #f0f8ff;
+    padding: 20px 25px;
+    margin: 10px 0;
+    border-left: 5px solid #4a90e2;
+    border-radius: 5px;
+    font-style: italic;
+    color: #333;
+    position: relative;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.quote::before {
+    content: "“";
+    font-size: 2rem;
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    color: #4a90e2;
+}
+
+.quote::after {
+    content: "”";
+    font-size: 2rem;
+    position: absolute;
+    bottom: -10px;
+    right: 10px;
+    color: #4a90e2;
+}
+
+.quote-author {
+    margin-top: 10px;
+    text-align: right;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.logout-button {
+    padding: 10px 20px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #e60000;
+}
+
+.loading {
+    font-size: 1.2rem;
+    color: var(--unauth-text-color);
+}
+
+.error-message {
+    color: red;
+    font-size: 1.2rem;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .profile-section {
+        flex-direction: column;
+    }
+
+    .profile-image,
+    .default-profile-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .quote-section {
+        padding: 0 20px;
+    }
+
+    .user-email {
+        font-size: 1.2rem; /* Slightly smaller on mobile for better fit */
+        padding: 6px 10px;
+    }
+}
+
+/* Dashboard.css */
+
+/* AI Responses Section */
+.ai-responses-section {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ai-responses-section h2 {
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 5px;
+}
+
+.ai-responses-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ai-response-item {
+    background-color: #ffffff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid #4caf50; /* Accent color for emphasis */
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    font-size: 1rem;
+    color: #555;
+    transition: background-color 0.3s ease;
+}
+
+.ai-response-item:hover {
+    background-color: #f1f1f1;
+}
+
+.no-ai-responses {
+    font-style: italic;
+    color: #777;
+    text-align: center;
+}
+
+/* Upload Section within Profile */
+.upload-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 20px; /* Adjust spacing as needed */
+}
+
+.upload-icon {
+    font-size: 1.5rem;
+    color: #4a90e2;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.upload-icon:hover {
+    color: #357ABD;
+}
+
+.uploading {
+    font-size: 0.9rem;
+    color: #4a90e2;
+    margin-top: 5px;
+}
+
+.upload-error {
+    font-size: 0.9rem;
+    color: red;
+    margin-top: 5px;
+}
+
+/* Purchase Section */
+.purchase-section {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #e8f4ff;
+    border: 2px solid #b3d7ff;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.purchase-section h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.purchase-section p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.purchase-button {
+    padding: 10px 20px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.purchase-button:hover {
+    background-color: #357ABD;
+}
+
+.purchase-price {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 600px) {
+    .profile-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .upload-section {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+}
