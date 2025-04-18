@@ -16,23 +16,14 @@ library.add(fab, faRobot, faDatabase, faMagic, faCode, faMobileAlt);
 
 const HomePage = () => {
   // State for carousel
-  const [currentSlide, setCurrentSlide] = useState(0);
+  // const [currentSlide, setCurrentSlide] = useState(0);
   const [activeNav, setActiveNav] = useState('home');
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const gclid = params.get('gclid') || '';
-    console.log('GCLID:', gclid); // Log the GCLID value
-    localStorage.setItem('gclid', gclid);
-  }, []);
-  
-
 
   const slides = [
     {
       icon: ['fab', 'react'],
       title: 'React',
-      description: 'Build interactive UIs with ease using React’s component-based architecture.',
+      description: 'Build interactive UIs with ease using React\'s component-based architecture.',
     },
     {
       icon: ['fab', 'google'],
@@ -47,12 +38,12 @@ const HomePage = () => {
     {
       icon: ['fab', 'github'],
       title: 'GitHub',
-      description: 'Collaborate and manage your codebase efficiently with GitHub’s version control system.',
+      description: 'Collaborate and manage your codebase efficiently with GitHub\'s version control system.',
     },
     {
       icon: ['fab', 'python'],
       title: 'Python',
-      description: 'Implement robust backend logic and data processing with Python’s versatile capabilities.',
+      description: 'Implement robust backend logic and data processing with Python\'s versatile capabilities.',
     },
   ];
 
@@ -69,16 +60,6 @@ const HomePage = () => {
       videoId: 'dQw4w9WgXcQ', // Replace with actual YouTube video ID
     },
   ];
-
-  useEffect(() => {
-    const slideInterval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000); // Change slide every 5 seconds
-
-    return () => {
-      clearInterval(slideInterval);
-    };
-  }, [slides.length]);
 
   const scrollToSection = (id) => {
     const section = document.getElementById(id);
@@ -126,9 +107,9 @@ const HomePage = () => {
           </li>
           <li
             className={activeNav === 'cta' ? 'active' : ''}
-            onClick={() => handleNavClick('cta')}
+            onClick={() => { /* Can optionally still scroll if needed, but primary action is link */ }}
           >
-            Get Started
+            <Link to="/signup" style={{ textDecoration: 'none', color: 'inherit' }}>Get Started</Link>
           </li>
         </ul>
       </nav>
@@ -141,7 +122,7 @@ const HomePage = () => {
           </h1>
           <p>Leverage the power of AI to streamline your backend development process.</p>
           <Link to="/signup" className="unauth-cta-button">
-            Let's get started ☕
+            Sign Up
           </Link>
         </div>
       </header>
@@ -253,9 +234,9 @@ const HomePage = () => {
         <div className="unauth-footer-content">
           <p>&copy; {new Date().getFullYear()} YourApp. All rights reserved.</p>
           <ul className="unauth-footer-links">
-            <li>Privacy Policy</li>
-            <li>Terms of Service</li>
-            <li>Contact Us</li>
+            <li><Link to="/privacy-policy" style={{ textDecoration: 'none', color: 'inherit' }}>Privacy Policy</Link></li>
+            <li><Link to="/terms-of-service" style={{ textDecoration: 'none', color: 'inherit' }}>Terms of Service</Link></li>
+            <li><Link to="/contact" style={{ textDecoration: 'none', color: 'inherit' }}>Contact Us</Link></li>
           </ul>
         </div>
       </footer>
