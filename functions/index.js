@@ -1,19 +1,35 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+admin.initializeApp();
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+exports.onUserCreate = functions.auth.user().onCreate(async (user) => {
+        try {
+                console.log(
+                        `New user created: UID=${user.uid}, Email=${user.email || "no-email"}`
+                );
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+                // Validate email existence
+                if (!user.email) {
+                        console.warn(`No email provided for user: ${user.uid}`);
+                        return null;
+                }
+
+                // Save user data to Firestore
+                const userData = {
+                        email: user.email,
+                        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                        displayName: user.displayName || null,
+                };
+
+                await admin.firestore()
+                        .collection("users")
+                        .doc(user.uid)
+                        .set(userData, { merge: true });
+
+                return null; // Indicate successful completion
+        } catch (error) {
+                console.error("Error saving user to Firestore:", error);
+                return null; // Ensure function completion even on error
+        }
+});
