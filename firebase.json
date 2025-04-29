@@ -13,12 +13,10 @@
       }
     ]
   },
-  "functions": {
-    "source": "functions",
-    "predeploy": [
-      "npm --prefix ./functions run lint"
-    ]
-  },
+"functions": {
+  "source": "functions",
+  "runtime": "nodejs18" 
+},
   "emulators": {
     "auth": {
       "port": 9099
@@ -43,5 +41,9 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }

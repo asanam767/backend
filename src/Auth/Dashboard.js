@@ -1,230 +1,144 @@
-// src/components/Dashboard.js
+// src/Auth/Dashboard.js (Corrected: Hooks inside component, imports fixed)
 
-import React, { useEffect, useState, useRef } from 'react';
-import './Dashboard.css';
-import { auth, db, functions, storage } from '../firebase';
+// ** React Imports **
+import React, { useEffect, useState } from 'react'; // Make sure useEffect, useState are imported
+import { useNavigate } from 'react-router-dom';    // Import useNavigate
+
+// ** Firebase Imports **
+import { auth } from '../firebase'; // Use YOUR firebase setup file path
 import { signOut } from 'firebase/auth';
-import { doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
-import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload } from '@fortawesome/free-solid-svg-icons';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-// STRIPE - Only import if STRIPE_PUBLIC_KEY is available
-const stripePromise = process.env.REACT_APP_STRIPE_PUBLIC_KEY 
-  ? import('@stripe/stripe-js').then(module => module.loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY))
-  : null;
+// ** CSS Import **
+import './Dashboard.css'; // Make sure you have basic CSS
 
+// --- Component Definition ---
 const Dashboard = () => {
-  const [userProfile, setUserProfile] = useState({
-    profileImage: '',
-    userEmail: '',
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState(null);
-  const navigate = useNavigate();
-  const fileInputRef = useRef(null);
-  const [purchaseButtonText, setPurchaseButtonText] = useState("Purchase");
-  const purchasePrice = "5.00";
+  // --- State Hooks (MUST be inside the component) ---
+  const [error, setError] = useState(null);        // For errors
+  const [userEmail, setUserEmail] = useState('');   // User's email
+  const [profileImageUrl, setProfileImageUrl] = useState(''); // Profile image URL
 
+  // --- Other Hooks (MUST be inside the component) ---
+  const navigate = useNavigate(); // Hook for navigation
+
+  // --- Effect Hook (MUST be inside the component) ---
   useEffect(() => {
-    const initializeUserProfile = async () => {
-      try {
-        const user = auth.currentUser;
-        if (!user) {
-          navigate('/signup');
-          return;
+    console.log("Dashboard useEffect running.");
+
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => { // Make callback async
+      console.log(`AUTH Listener: Auth state changed. User object initial:`, user);
+
+      if (user) {
+        // --- User Logged In ---
+        setUserEmail(user.email || 'No Email'); // Use state setter
+        let currentPhotoURL = user.photoURL;
+
+        // Check if photoURL is missing initially & try reloading
+        if (!currentPhotoURL) {
+          console.warn("AUTH Listener: user.photoURL is initially null/empty. Attempting user.reload().");
+          try {
+            // Wait a tiny bit for propagation, then reload
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Delay 1.5 seconds
+            await user.reload(); // Force refresh user data from backend
+            console.log("AUTH Listener: user.reload() completed. Checking auth.currentUser.");
+            currentPhotoURL = auth.currentUser?.photoURL; // Check updated currentUser
+          } catch (reloadError) {
+            console.error("AUTH Listener: Error during user.reload():", reloadError);
+            setError("Failed to refresh user data."); // Use state setter
+          }
         }
 
-        // Initialize basic profile
-        setUserProfile(prev => ({
-          ...prev,
-          userEmail: user.email || '',
-        }));
-
-        // Get or create user document
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (!userDoc.exists()) {
-          // Create new user profile
-          const newUserProfile = {
-            userProfile: {
-              profileImage: '',
-              userEmail: user.email || '',
-              createdAt: new Date().toISOString(),
-            }
-          };
-
-          await setDoc(userDocRef, newUserProfile);
-          setUserProfile(newUserProfile.userProfile);
+        // Set state based on potentially updated photoURL
+        if (currentPhotoURL) {
+          console.log(`AUTH Listener: Setting profileImageUrl from ${currentPhotoURL ? 'auth object' : 'still null'}: ${currentPhotoURL?.slice(0, 60)}...`);
+          setProfileImageUrl(currentPhotoURL); // Use state setter
         } else {
-          // Update existing profile
-          const data = userDoc.data();
-          setUserProfile(prev => ({
-            ...prev,
-            ...data.userProfile,
-          }));
+          console.warn("AUTH Listener: photoURL still null/empty after check/reload.");
+          setProfileImageUrl(''); // Use state setter
         }
-      } catch (err) {
-        console.error('Error initializing user profile:', err);
-        setError('Failed to initialize user profile. Please try refreshing the page.');
-      } finally {
-        setLoading(false);
+        setError(null); // Use state setter
+
+      } else {
+        // --- User Logged Out ---
+        console.log("AUTH Listener: User logged out.");
+        // Reset state
+        setUserEmail('');           // Use state setter
+        setProfileImageUrl('');     // Use state setter
+        setError(null);             // Use state setter
+        navigate('/signup');        // Use navigate function
       }
+    });
+
+    // --- Cleanup Function for useEffect ---
+    return () => {
+      console.log(">>> Dashboard Component Unmounting: Cleaning up Auth listener.");
+      unsubscribeAuth();
     };
+  }, [navigate]); // Dependency array for useEffect
 
-    initializeUserProfile();
-  }, [navigate]);
-
-  const handleFileUpload = async (file) => {
-    if (!file) return;
-    
-    setUploading(true);
-    setUploadError(null);
-
-    try {
-      const user = auth.currentUser;
-      if (!user) {
-        throw new Error('No authenticated user found');
-      }
-
-      const storageRef = ref(storage, `profile_pictures/${user.uid}/${file.name}`);
-      await uploadBytes(storageRef, file);
-      const downloadUrl = await getDownloadURL(storageRef);
-      
-      const userDocRef = doc(db, 'users', user.uid);
-      await updateDoc(userDocRef, {
-        'userProfile.profileImage': downloadUrl,
-      });
-
-      setUserProfile(prev => ({
-        ...prev,
-        profileImage: downloadUrl,
-      }));
-    } catch (err) {
-      console.error('Error uploading file:', err);
-      setUploadError('Failed to upload image. Please try again.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
+  // --- Logout Button Handler ---
   const handleLogout = async () => {
+    console.log("Logout button clicked.");
     try {
-      await signOut(auth);
-      navigate('/signup');
-    } catch (err) {
-      console.error('Error signing out:', err);
-      setError('Failed to log out. Please try again.');
+      await signOut(auth); // Use imported signOut and auth
+      console.log("Sign out successful.");
+    } catch (error) {
+      console.error('Error signing out:', error);
+      setError("Failed to logout."); // Use state setter
     }
   };
+  // --- ---
 
-  if (loading) {
-    return (
-      <div className="dashboard-container">
-        <div className="loading-spinner">
-          <p className="loading">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="dashboard-container">
-        <div className="error-container">
-          <p className="error-message">{error}</p>
-          <button onClick={() => window.location.reload()} className="retry-button">
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // --- Render Logic ---
+  const isUserLoaded = !!userEmail; // Determine if user info is loaded
+  console.log(`--- Rendering Dashboard: isUserLoaded=${isUserLoaded}, error=${error}, profileImageUrl=${profileImageUrl ? profileImageUrl.slice(0,30)+'...' : 'empty'}`);
 
   return (
-    <div className="dashboard-container">
-      <h1 className="dashboard-header">Welcome to Your Dashboard</h1>
-      
-      <div className="profile-section">
-        {userProfile.profileImage ? (
-          <img
-            src={userProfile.profileImage}
-            alt="Profile"
-            className="profile-image"
-          />
-        ) : (
-          <div className="profile-placeholder">No Image</div>
-        )}
-        <span className="user-email">{userProfile.userEmail}</span>
+    <div className="dashboard-container" style={{ textAlign: 'center', padding: '20px' }}>
+      <h1>Welcome to Your Dashboard</h1>
 
-        <div className="upload-section">
-          <FontAwesomeIcon 
-            icon={faUpload} 
-            className="upload-icon" 
-            onClick={() => fileInputRef.current?.click()} 
-            title="Upload Profile Image" 
-          />
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                handleFileUpload(file);
-              }
-            }}
-          />
-          {uploading && <p className="uploading">Uploading...</p>}
-          {uploadError && <p className="upload-error">{uploadError}</p>}
-        </div>
-      </div>
-
-      {stripePromise && (
-        <div className="purchase-section">
-          <h2>Purchase Messagly Credits</h2>
-          <p>Get Messagly credits for your account.</p>
-          <button 
-            className="purchase-button" 
-            onClick={async () => {
-              setPurchaseButtonText("Processing...");
-              try {
-                const createSession = httpsCallable(functions, 'startPaymentSession');
-                const { data: { sessionId } } = await createSession({
-                  plan: 'Messagly',
-                  gclid: localStorage.getItem('gclid') || '',
-                });
-                
-                const stripe = await stripePromise;
-                const { error } = await stripe.redirectToCheckout({ sessionId });
-                
-                if (error) {
-                  console.error('Stripe redirect error:', error);
-                  setPurchaseButtonText("Retry");
-                }
-              } catch (err) {
-                console.error('Purchase error:', err);
-                setPurchaseButtonText("Retry");
-              }
-            }}
-          >
-            {purchaseButtonText}
-          </button>
-          <p className="purchase-price">${purchasePrice} USD</p>
-        </div>
+      {/* Show loading only if email isn't set yet */}
+      {!isUserLoaded && !error && (
+           <p style={{ color: 'blue' }}>Loading user...</p>
       )}
 
-      <button className="logout-button" onClick={handleLogout}>
+      {error && (
+        <p style={{ color: 'red' }}>Error: {error}</p>
+      )}
+
+      {/* Show profile info only when user is loaded and no error */}
+      {isUserLoaded && !error && (
+        <>
+          <p>Email: {userEmail}</p>
+          {profileImageUrl ? (
+            <img
+              src={profileImageUrl}
+              alt="User Profile"
+              className="profile-image" // Ensure you have CSS for this class
+              style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #ccc' }} // Basic inline styles
+              onError={(e) => {
+                console.error("REACT RENDER Error: Failed loading image in <img> tag. URL:", profileImageUrl);
+                setError("Failed to load profile image resource."); // Use state setter
+              }}
+            />
+          ) : (
+            // This shows if user is loaded, no error, but image URL state is still empty
+            <p>No profile image set.</p>
+          )}
+        </>
+      )}
+      {/* --- End Conditional Rendering --- */}
+
+      <button
+        className="logout-button"
+        onClick={handleLogout}
+        style={{ marginTop: '20px', padding: '10px 20px' }}
+      >
         Logout
       </button>
     </div>
   );
-};
+  // --- ---
+}; // --- End of Dashboard Component ---
 
 export default Dashboard;
