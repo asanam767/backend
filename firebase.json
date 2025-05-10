@@ -13,10 +13,33 @@
       }
     ]
   },
-"functions": {
-  "source": "functions",
-  "runtime": "nodejs18" 
-},
+  "functions": [
+    {
+      "source": "functions", // Directory for your Node.js functions
+      "runtime": "nodejs18", // Your Node.js runtime (Consider updating to nodejs20)
+      "codebase": "default", // Identifier for this codebase
+      "ignore": [ // Files/folders to ignore for Node.js deployment
+            "node_modules",
+            ".git",
+            "firebase-debug.log",
+            "firebase-debug.*.log",
+            "*.local"
+          ]
+    },
+    {
+      "source": "python_functions", // Directory for your Python functions
+      "codebase": "python_functions", // Identifier for this codebase
+      "runtime": "python311", // *** ADDED: Specify the Python runtime ***
+      "ignore": [ // Files/folders to ignore for Python deployment
+        "venv", // Python virtual environment folder
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local",
+        "__pycache__" // Python bytecode cache
+      ]
+    }
+  ],
   "emulators": {
     "auth": {
       "port": 9099
